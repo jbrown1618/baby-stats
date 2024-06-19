@@ -1,0 +1,1 @@
+cp ./mobile-app/.env.sample ./mobile-app/.env

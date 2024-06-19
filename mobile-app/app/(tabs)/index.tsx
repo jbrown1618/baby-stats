@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 export default function HomeScreen() {
   useEffect(() => {
-    fetch("http://IP_ADDRESS:8082")
+    fetch(process.env.EXPO_PUBLIC_SERVER_URL!)
       .then(async (res) => {
         const b = await res.json();
         console.log(b);
