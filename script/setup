@@ -1,1 +1,5 @@
-cp ./mobile-app/.env.sample ./mobile-app/.env
+cp ./server/.env.sample ./server/.env
+
+# Insert the user's IP Address as the server URL
+IP=$(ipconfig getifaddr en0)
+sed "s/YOUR_IP_ADDRESS/$IP/g" ./mobile-app/.env.sample > ./mobile-app/.env
