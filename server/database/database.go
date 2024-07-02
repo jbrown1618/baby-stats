@@ -29,7 +29,12 @@ func GetApplicationDatabase() (*sql.DB, error) {
 		return nil, fmt.Errorf("error setting up dev database: %w", err)
 	}
 
-	_, err = db.Exec(`INSERT OR IGNORE INTO welcome (message) VALUES ('Getting data from the database')`)
+	seed, err := os.ReadFile("database/seed/seed.sql")
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving database seed file: %w", err)
+	}
+
+	_, err = db.Exec(string(seed))
 	if err != nil {
 		return nil, fmt.Errorf("error seeding dev database: %w", err)
 	}
