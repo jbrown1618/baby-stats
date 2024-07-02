@@ -11,11 +11,11 @@ const setup = `
 -- CREATE DATABASE babystats;
 
 CREATE TABLE IF NOT EXISTS welcome (
-  id INT PRIMARY KEY NOT NULL,
+  id      ROWID,
   message TEXT NOT NULL
 );
 
-INSERT OR IGNORE INTO welcome (id, message) VALUES (1, 'Getting data from the database');
+INSERT OR IGNORE INTO welcome (message) VALUES ('Getting data from the database');
 `
 
 func GetApplicationDatabase() (*sql.DB, error) {
