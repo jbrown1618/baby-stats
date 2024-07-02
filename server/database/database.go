@@ -42,6 +42,7 @@ func GetWelcomeMessage(db *sql.DB) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error getting welcome message: %w", err)
 	}
+	defer rows.Close()
 
 	var name string
 	rows.Next()
