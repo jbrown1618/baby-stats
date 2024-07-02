@@ -3,20 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-const setup = `
--- CREATE DATABASE babystats;
-
-CREATE TABLE IF NOT EXISTS welcome (
-  id      ROWID,
-  message TEXT NOT NULL
-);
-
-INSERT OR IGNORE INTO welcome (message) VALUES ('Getting data from the database');
-`
 
 func GetApplicationDatabase() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "file:dev.db")
@@ -29,9 +19,19 @@ func GetApplicationDatabase() (*sql.DB, error) {
 		return nil, fmt.Errorf("error pinging dev database: %w", err)
 	}
 
-	_, err = db.Exec(setup)
+	schema, err := os.ReadFile("database/schema.sql")
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving database schema: %w", err)
+	}
+
+	_, err = db.Exec(string(schema))
 	if err != nil {
 		return nil, fmt.Errorf("error setting up dev database: %w", err)
+	}
+
+	_, err = db.Exec(`INSERT OR IGNORE INTO welcome (message) VALUES ('Getting data from the database')`)
+	if err != nil {
+		return nil, fmt.Errorf("error seeding dev database: %w", err)
 	}
 
 	return db, nil
