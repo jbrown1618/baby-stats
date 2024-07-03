@@ -32,12 +32,12 @@ func main() {
 		if isDev {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
-		message, err := database.GetWelcomeMessage(db)
+		version, err := database.GetDatabaseVersion(db)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("500 - something went wrong"))
 		}
-		fmt.Fprintf(w, "{ \"message\": \"%s\" }", message)
+		fmt.Fprintf(w, `{ "message": "Welcome to baby-stats", "version": %d }`, version)
 	})
 
 	fs := http.FileServer(http.Dir("static/"))

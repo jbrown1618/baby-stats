@@ -42,19 +42,18 @@ func GetApplicationDatabase() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetWelcomeMessage(db *sql.DB) (string, error) {
-	rows, err := db.Query(`SELECT message FROM welcome WHERE id = 1`)
+func GetDatabaseVersion(db *sql.DB) (uint16, error) {
+	rows, err := db.Query(`SELECT MAX(version) FROM version_history`)
 	if err != nil {
-		return "", fmt.Errorf("error getting welcome message: %w", err)
+		return 0, fmt.Errorf("error getting db version: %w", err)
 	}
 	defer rows.Close()
 
-	var name string
+	var version uint16
 	rows.Next()
-	err = rows.Scan(&name)
+	err = rows.Scan(&version)
 	if err != nil {
-		return "", fmt.Errorf("error getting welcome message from result: %w", err)
+		return 0, fmt.Errorf("error getting db version from result: %w", err)
 	}
-	return name, nil
-
+	return version, nil
 }
