@@ -1,16 +1,16 @@
 INSERT OR IGNORE INTO version_history (version) 
 VALUES (1);
 
-INSERT INTO user (username)
-VALUES ('testuser');
+INSERT OR IGNORE INTO user (user_id, username)
+VALUES (1, 'testuser');
 
-INSERT INTO baby (user_id, name, birth_date)
-VALUES ((SELECT user_id FROM user WHERE username = 'testuser'), 'Miles', DATETIME('2024-01-20'));
+INSERT OR IGNORE INTO baby (baby_id, user_id, name, birth_date)
+VALUES (1, 1, 'Miles', DATETIME('2024-01-20'));
 
-INSERT INTO event (baby_id, type, start_time)
-VALUES ((SELECT baby_id FROM baby WHERE name = 'Miles'), 'feeding', 1719968822),
-       ((SELECT baby_id FROM baby WHERE name = 'Miles'), 'feeding', 1719968810);
+INSERT OR IGNORE INTO event (event_id, baby_id, type, start_time)
+VALUES (1, 1, 'feeding', DATETIME('2024-01-20 10:00:00')),
+       (2, 1, 'feeding', DATETIME('2024-01-20 13:00:00'));
 
-INSERT INTO measurement (event_id, amount, unit)
-VALUES ((SELECT event_id FROM event WHERE start_time = 1719968822), 9.5, 'oz'),
-       ((SELECT event_id FROM event WHERE start_time = 1719968810), 8.5, 'oz')
+INSERT OR IGNORE INTO measurement (measurement_id, event_id, amount, unit)
+VALUES (1, 1, 9.5, 'oz'),
+       (2, 2, 8.5, 'oz');

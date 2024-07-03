@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS baby (
   baby_id    INTEGER PRIMARY KEY,
   user_id    INTEGER NOT NULL,
   name       TEXT NOT NULL,
-  birth_date INTEGER NOT NULL,
+  birth_date TIMESTAMP NOT NULL,
 
   FOREIGN KEY(user_id) REFERENCES user(user_id)
 );
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS event (
   event_id    INTEGER PRIMARY KEY,
   baby_id     INTEGER NOT NULL,
   type        TEXT NOT NULL,
-  start_time  INTEGER NOT NULL,
-  end_time    INTEGER,
+  start_time  TIMESTAMP NOT NULL,
+  end_time    TIMESTAMP,
   notes       TEXT,
 
   FOREIGN KEY(baby_id) REFERENCES baby(baby_id)
