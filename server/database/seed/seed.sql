@@ -5,7 +5,8 @@ INSERT OR IGNORE INTO user (user_id, username)
 VALUES (1, 'testuser');
 
 INSERT OR IGNORE INTO baby (baby_id, user_id, name, birth_date)
-VALUES (1, 1, 'Miles', DATETIME('2024-01-20'));
+VALUES (1, 1, 'Miles', DATETIME('2024-01-20')),
+       (2, 1, 'Ian', DATETIME('2024-01-21'));
 
 INSERT OR IGNORE INTO event (event_id, baby_id, type, start_time)
 VALUES (1, 1, 'feeding', DATETIME('2024-01-20 10:00:00')),

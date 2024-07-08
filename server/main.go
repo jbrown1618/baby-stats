@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -26,18 +27,28 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/babies", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Received request from the mobile app")
 		w.Header().Set("Content-Type", "application/json")
 		if isDev {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
-		version, err := database.GetDatabaseVersion(db)
+		babies, err := database.ListBabies(db, 1)
 		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("500 - something went wrong"))
+			return
 		}
-		fmt.Fprintf(w, `{ "message": "Welcome to baby-stats", "version": %d }`, version)
+
+		babiesJson, err := json.Marshal(babies)
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+		fmt.Fprint(w, string(babiesJson))
 	})
 
 	fs := http.FileServer(http.Dir("static/"))

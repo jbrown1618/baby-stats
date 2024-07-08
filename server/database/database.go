@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -56,4 +57,37 @@ func GetDatabaseVersion(db *sql.DB) (uint16, error) {
 		return 0, fmt.Errorf("error getting db version from result: %w", err)
 	}
 	return version, nil
+}
+
+type Baby struct {
+	Id        uint64    `json:"id"`
+	UserID    uint64    `json:"userId"`
+	Name      string    `json:"name"`
+	BirthDate time.Time `json:"birthDate"`
+}
+
+func ListBabies(db *sql.DB, userID uint64) ([]Baby, error) {
+	rows, err := db.Query(`SELECT baby_id, user_id, name, birth_date FROM baby WHERE user_id = ?`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error listing babies: %w", err)
+	}
+	defer rows.Close()
+
+	babies := make([]Baby, 0)
+	for rows.Next() {
+		var babyID uint64
+		var userID uint64
+		var name string
+		var birthDate time.Time
+
+		err = rows.Scan(&babyID, &userID, &name, &birthDate)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving baby data: %w", err)
+		}
+
+		baby := Baby{Id: babyID, UserID: userID, Name: name, BirthDate: birthDate}
+		babies = append(babies, baby)
+	}
+
+	return babies, nil
 }
