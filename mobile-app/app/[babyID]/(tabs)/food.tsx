@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useLocalSearchParams } from "expo-router";
+import { useCurrentBaby } from "@/hooks/api";
 import { View } from "react-native";
 
 export default function Food() {
-  const p = useLocalSearchParams();
+  const { data: baby } = useCurrentBaby();
   return (
-    <View style={{ height: 300 }}>
-      <ThemedText>Food: {JSON.stringify(p)}</ThemedText>
+    <View>
+      <ThemedText>Food: {JSON.stringify(baby)}</ThemedText>
     </View>
   );
 }

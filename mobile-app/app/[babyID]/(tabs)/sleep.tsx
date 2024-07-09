@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useLocalSearchParams } from "expo-router";
+import { useCurrentBaby } from "@/hooks/api";
 import { View } from "react-native";
 
 export default function Sleep() {
-  const p = useLocalSearchParams();
+  const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>Sleep: {JSON.stringify(p)}</ThemedText>
+      <ThemedText>Sleep: {JSON.stringify(baby)}</ThemedText>
     </View>
   );
 }

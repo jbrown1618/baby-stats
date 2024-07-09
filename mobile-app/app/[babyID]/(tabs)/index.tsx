@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
+import { useCurrentBaby } from "@/hooks/api";
 
 export default function TabsIndex() {
-  const p = useLocalSearchParams();
+  const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>TabsIndex: {JSON.stringify(p)}</ThemedText>
+      <ThemedText>TabsIndex: {JSON.stringify(baby)}</ThemedText>
     </View>
   );
 }

@@ -1,12 +1,13 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useLocalSearchParams, router } from "expo-router";
+import { useCurrentBaby } from "@/hooks/api";
+import { router } from "expo-router";
 import { View } from "react-native";
 
 export default function AddEvent() {
-  const p = useLocalSearchParams();
+  const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>AddEvent: {JSON.stringify(p)}</ThemedText>
+      <ThemedText>AddEvent: {JSON.stringify(baby)}</ThemedText>
       <ThemedText onPress={() => router.back()}>Dismiss</ThemedText>
     </View>
   );

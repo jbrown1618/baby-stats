@@ -6,7 +6,11 @@ export interface Baby {
 }
 
 export async function listBabies(): Promise<Baby[]> {
-  return makeRequest<Baby[]>("/babies");
+  return makeRequest<Baby[]>(`/babies`);
+}
+
+export async function getBaby(babyID: number): Promise<Baby> {
+  return makeRequest<Baby>(`/babies/${babyID}`);
 }
 
 async function makeRequest<T>(url: string): Promise<T> {

@@ -66,28 +66,48 @@ type Baby struct {
 	BirthDate time.Time `json:"birthDate"`
 }
 
-func ListBabies(db *sql.DB, userID uint64) ([]Baby, error) {
-	rows, err := db.Query(`SELECT baby_id, user_id, name, birth_date FROM baby WHERE user_id = ?`, userID)
+func ListBabies(db *sql.DB, userID uint64) ([]*Baby, error) {
+	rows, err := db.Query(`SELECT baby_id, name, birth_date FROM baby WHERE user_id = ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error listing babies: %w", err)
 	}
 	defer rows.Close()
 
-	babies := make([]Baby, 0)
+	babies := make([]*Baby, 0)
 	for rows.Next() {
 		var babyID uint64
-		var userID uint64
 		var name string
 		var birthDate time.Time
 
-		err = rows.Scan(&babyID, &userID, &name, &birthDate)
+		err = rows.Scan(&babyID, &name, &birthDate)
 		if err != nil {
 			return nil, fmt.Errorf("error retrieving baby data: %w", err)
 		}
 
 		baby := Baby{Id: babyID, UserID: userID, Name: name, BirthDate: birthDate}
-		babies = append(babies, baby)
+		babies = append(babies, &baby)
 	}
 
 	return babies, nil
+}
+
+func GetBaby(db *sql.DB, userID uint64, babyID uint64) (*Baby, error) {
+	rows, err := db.Query(`SELECT name, birth_date FROM baby WHERE user_id = ? AND baby_id = ?`, userID, babyID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting baby: %w", err)
+	}
+	defer rows.Close()
+
+	rows.Next()
+	var name string
+	var birthDate time.Time
+
+	err = rows.Scan(&name, &birthDate)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving baby data: %w", err)
+	}
+
+	baby := Baby{Id: babyID, UserID: userID, Name: name, BirthDate: birthDate}
+
+	return &baby, nil
 }

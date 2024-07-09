@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"jbrown1618/baby-stats/database"
 
@@ -51,8 +52,39 @@ func main() {
 		fmt.Fprint(w, string(babiesJson))
 	})
 
-	fs := http.FileServer(http.Dir("static/"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.HandleFunc("/babies/{babyID}", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Received request from the mobile app")
+		w.Header().Set("Content-Type", "application/json")
+		if isDev {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		babyIDPath := r.PathValue("babyID")
+		babyID, err := strconv.ParseUint(babyIDPath, 10, 64)
+		if err != nil {
+			fmt.Printf("invalid baby ID %s: %s", babyIDPath, err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+
+		baby, err := database.GetBaby(db, 1, babyID)
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+
+		babyJson, err := json.Marshal(baby)
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+		fmt.Fprint(w, string(babyJson))
+	})
 
 	fmt.Println("Listening on port " + port)
 	http.ListenAndServe(":"+port, nil)
