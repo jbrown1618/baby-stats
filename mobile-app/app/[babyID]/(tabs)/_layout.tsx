@@ -8,6 +8,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="index" options={{ headerShown: false }} />
         <Tabs.Screen name="food" options={{ headerShown: false }} />
         <Tabs.Screen name="sleep" options={{ headerShown: false }} />
+        <Tabs.Screen name="timeline" options={{ headerShown: false }} />
       </Tabs>
       <AddEventButton />
     </>

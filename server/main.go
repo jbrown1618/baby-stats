@@ -21,7 +21,7 @@ func main() {
 	port := os.Getenv("PORT")
 	isDev := os.Getenv("ENVIRONMENT_TYPE") == "DEV"
 
-	db, err := database.GetApplicationDatabase()
+	db, err := database.NewApplicationDatabase()
 	if err != nil {
 		fmt.Println(fmt.Errorf("error getting database: %w", err).Error())
 		os.Exit(1)
@@ -34,7 +34,7 @@ func main() {
 		if isDev {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
-		babies, err := database.ListBabies(db, 1)
+		babies, err := db.ListBabies(1)
 		if err != nil {
 			fmt.Printf("Error: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -68,7 +68,7 @@ func main() {
 			return
 		}
 
-		baby, err := database.GetBaby(db, 1, babyID)
+		baby, err := db.GetBaby(1, babyID)
 		if err != nil {
 			fmt.Printf("Error: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -84,6 +84,40 @@ func main() {
 			return
 		}
 		fmt.Fprint(w, string(babyJson))
+	})
+
+	http.HandleFunc("/babies/{babyID}/events", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Received request from the mobile app")
+		w.Header().Set("Content-Type", "application/json")
+		if isDev {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		babyIDPath := r.PathValue("babyID")
+		babyID, err := strconv.ParseUint(babyIDPath, 10, 64)
+		if err != nil {
+			fmt.Printf("invalid baby ID %s: %s", babyIDPath, err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+
+		events, err := db.ListEvents(1, babyID)
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+
+		eventsJson, err := json.Marshal(events)
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - something went wrong"))
+			return
+		}
+		fmt.Fprint(w, string(eventsJson))
 	})
 
 	fmt.Println("Listening on port " + port)

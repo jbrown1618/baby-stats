@@ -1,8 +1,13 @@
 export interface Baby {
   id: number;
-  userId: number;
+  userID: number;
   name: string;
   birthDate: string;
+}
+
+export interface Event {
+  id: number;
+  babyID: number;
 }
 
 export async function listBabies(): Promise<Baby[]> {
@@ -11,6 +16,10 @@ export async function listBabies(): Promise<Baby[]> {
 
 export async function getBaby(babyID: number): Promise<Baby> {
   return makeRequest<Baby>(`/babies/${babyID}`);
+}
+
+export async function listEvents(babyID: number): Promise<Event[]> {
+  return makeRequest<Event[]>(`/babies/${babyID}/events`);
 }
 
 async function makeRequest<T>(url: string): Promise<T> {

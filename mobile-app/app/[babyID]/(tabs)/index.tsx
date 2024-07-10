@@ -6,7 +6,7 @@ export default function TabsIndex() {
   const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>TabsIndex: {JSON.stringify(baby)}</ThemedText>
+      <ThemedText>TabsIndex: {JSON.stringify(baby, null, 2)}</ThemedText>
     </View>
   );
 }

@@ -6,7 +6,7 @@ export default function Sleep() {
   const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>Sleep: {JSON.stringify(baby)}</ThemedText>
+      <ThemedText>Sleep: {JSON.stringify(baby, null, 2)}</ThemedText>
     </View>
   );
 }

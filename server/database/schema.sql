@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS baby (
   baby_id    INTEGER PRIMARY KEY,
   user_id    INTEGER NOT NULL,
   name       TEXT NOT NULL,
+  sex        TEXT NOT NULL,
   birth_date TIMESTAMP NOT NULL,
 
   FOREIGN KEY(user_id) REFERENCES user(user_id)

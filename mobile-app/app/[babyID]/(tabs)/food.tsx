@@ -6,7 +6,7 @@ export default function Food() {
   const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>Food: {JSON.stringify(baby)}</ThemedText>
+      <ThemedText>Food: {JSON.stringify(baby, null, 2)}</ThemedText>
     </View>
   );
 }

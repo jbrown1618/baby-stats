@@ -7,7 +7,7 @@ export default function AddEvent() {
   const { data: baby } = useCurrentBaby();
   return (
     <View>
-      <ThemedText>AddEvent: {JSON.stringify(baby)}</ThemedText>
+      <ThemedText>AddEvent: {JSON.stringify(baby, null, 2)}</ThemedText>
       <ThemedText onPress={() => router.back()}>Dismiss</ThemedText>
     </View>
   );

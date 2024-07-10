@@ -9,7 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GetApplicationDatabase() (*sql.DB, error) {
+type ApplicationDatabase struct {
+	db *sql.DB
+}
+
+func NewApplicationDatabase() (*ApplicationDatabase, error) {
 	db, err := sql.Open("sqlite3", "file:dev.db")
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to dev database: %w", err)
@@ -40,11 +44,15 @@ func GetApplicationDatabase() (*sql.DB, error) {
 		return nil, fmt.Errorf("error seeding dev database: %w", err)
 	}
 
-	return db, nil
+	return &ApplicationDatabase{db: db}, nil
 }
 
-func GetDatabaseVersion(db *sql.DB) (uint16, error) {
-	rows, err := db.Query(`SELECT MAX(version) FROM version_history`)
+func (a *ApplicationDatabase) Close() {
+	a.db.Close()
+}
+
+func (a *ApplicationDatabase) GetDatabaseVersion() (uint16, error) {
+	rows, err := a.db.Query(`SELECT MAX(version) FROM version_history`)
 	if err != nil {
 		return 0, fmt.Errorf("error getting db version: %w", err)
 	}
@@ -61,13 +69,14 @@ func GetDatabaseVersion(db *sql.DB) (uint16, error) {
 
 type Baby struct {
 	Id        uint64    `json:"id"`
-	UserID    uint64    `json:"userId"`
+	UserID    uint64    `json:"userID"`
 	Name      string    `json:"name"`
+	Sex       string    `json:"sex"`
 	BirthDate time.Time `json:"birthDate"`
 }
 
-func ListBabies(db *sql.DB, userID uint64) ([]*Baby, error) {
-	rows, err := db.Query(`SELECT baby_id, name, birth_date FROM baby WHERE user_id = ?`, userID)
+func (a *ApplicationDatabase) ListBabies(userID uint64) ([]*Baby, error) {
+	rows, err := a.db.Query(`SELECT baby_id, name, sex, birth_date FROM baby WHERE user_id = ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error listing babies: %w", err)
 	}
@@ -77,22 +86,23 @@ func ListBabies(db *sql.DB, userID uint64) ([]*Baby, error) {
 	for rows.Next() {
 		var babyID uint64
 		var name string
+		var sex string
 		var birthDate time.Time
 
-		err = rows.Scan(&babyID, &name, &birthDate)
+		err = rows.Scan(&babyID, &name, &sex, &birthDate)
 		if err != nil {
 			return nil, fmt.Errorf("error retrieving baby data: %w", err)
 		}
 
-		baby := Baby{Id: babyID, UserID: userID, Name: name, BirthDate: birthDate}
+		baby := Baby{Id: babyID, UserID: userID, Name: name, Sex: sex, BirthDate: birthDate}
 		babies = append(babies, &baby)
 	}
 
 	return babies, nil
 }
 
-func GetBaby(db *sql.DB, userID uint64, babyID uint64) (*Baby, error) {
-	rows, err := db.Query(`SELECT name, birth_date FROM baby WHERE user_id = ? AND baby_id = ?`, userID, babyID)
+func (a *ApplicationDatabase) GetBaby(userID uint64, babyID uint64) (*Baby, error) {
+	rows, err := a.db.Query(`SELECT name, sex, birth_date FROM baby WHERE user_id = ? AND baby_id = ?`, userID, babyID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting baby: %w", err)
 	}
@@ -100,14 +110,61 @@ func GetBaby(db *sql.DB, userID uint64, babyID uint64) (*Baby, error) {
 
 	rows.Next()
 	var name string
+	var sex string
 	var birthDate time.Time
 
-	err = rows.Scan(&name, &birthDate)
+	err = rows.Scan(&name, &sex, &birthDate)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving baby data: %w", err)
 	}
 
-	baby := Baby{Id: babyID, UserID: userID, Name: name, BirthDate: birthDate}
+	baby := Baby{Id: babyID, UserID: userID, Name: name, Sex: sex, BirthDate: birthDate}
 
 	return &baby, nil
+}
+
+type Event struct {
+	Id        uint64     `json:"id"`
+	BabyId    uint64     `json:"babyID"`
+	EventType string     `json:"eventType"`
+	StartTime time.Time  `json:"startTime"`
+	EndTime   *time.Time `json:"endTime,omitempty"`
+	Notes     *string    `json:"notes,omitempty"`
+}
+
+func (a *ApplicationDatabase) ListEvents(userID uint64, babyID uint64) ([]*Event, error) {
+	rows, err := a.db.Query(`SELECT e.event_id, e.type, e.start_time, e.end_time, e.notes FROM event e INNER JOIN baby b ON e.baby_id = b.baby_id WHERE b.user_id = ? AND e.baby_id = ?`, userID, babyID)
+	if err != nil {
+		return nil, fmt.Errorf("error listing events: %w", err)
+	}
+	defer rows.Close()
+
+	events := make([]*Event, 0)
+	for rows.Next() {
+		var eventID uint64
+		var eventType string
+		var startTime time.Time
+		var nullableEndTime sql.NullTime
+		var nullableNotes sql.NullString
+
+		err = rows.Scan(&eventID, &eventType, &startTime, &nullableEndTime, &nullableNotes)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving event data: %w", err)
+		}
+
+		var endTime *time.Time
+		if nullableEndTime.Valid {
+			endTime = &nullableEndTime.Time
+		}
+
+		var notes *string
+		if nullableNotes.Valid {
+			notes = &nullableNotes.String
+		}
+
+		event := Event{Id: eventID, BabyId: babyID, EventType: eventType, StartTime: startTime, EndTime: endTime, Notes: notes}
+		events = append(events, &event)
+	}
+
+	return events, nil
 }
