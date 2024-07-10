@@ -4,29 +4,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"jbrown1618/baby-stats/database"
 	"jbrown1618/baby-stats/handler"
 	"jbrown1618/baby-stats/middleware"
+	"jbrown1618/baby-stats/settings"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println(fmt.Errorf("error loading environment variables: %w", err).Error())
-	}
-
-	port := os.Getenv("PORT")
-	isDev := os.Getenv("ENVIRONMENT_TYPE") == "DEV"
+	s := settings.NewApplicationSettings()
 
 	db, err := database.NewApplicationDatabase()
 	if err != nil {
-		log.Println(fmt.Errorf("error getting database: %w", err).Error())
-		os.Exit(1)
+		log.Panicln(fmt.Errorf("error getting database: %w", err).Error())
 	}
 	defer db.Close()
 
@@ -37,8 +29,9 @@ func main() {
 	r.HandleFunc("/babies/{babyID:[0-9]+}/events", handler.EventsHandler(db)).Methods(http.MethodGet)
 
 	r.Use(middleware.Logger)
-	r.Use(middleware.CommonHeaders(isDev))
+	r.Use(middleware.CommonHeaders(s.IsDev()))
 
+	port := s.ServerPort()
 	log.Println("Listening on port " + port)
 	http.ListenAndServe(":"+port, r)
 }
