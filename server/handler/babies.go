@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func BabiesHandler(db *database.ApplicationDatabase) http.HandlerFunc {
+func ListBabiesHandler(db *database.ApplicationDatabase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		babies, err := db.ListBabies(1)
 		if err != nil {
@@ -33,7 +33,7 @@ func BabiesHandler(db *database.ApplicationDatabase) http.HandlerFunc {
 	}
 }
 
-func BabyHandler(db *database.ApplicationDatabase) http.HandlerFunc {
+func GetBabyHandler(db *database.ApplicationDatabase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		babyIDPath := mux.Vars(r)["babyID"]
 		babyID, err := strconv.ParseUint(babyIDPath, 10, 64)

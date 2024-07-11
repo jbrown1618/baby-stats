@@ -168,3 +168,20 @@ func (a *ApplicationDatabase) ListEvents(userID uint64, babyID uint64) ([]*Event
 
 	return events, nil
 }
+
+func (a *ApplicationDatabase) CreateEvent(babyID uint64, event *Event) (uint64, error) {
+	res, err := a.db.Exec(
+		`INSERT INTO event (baby_id, type, start_time, end_time, notes) VALUES (?, ?, ?, ?, ?)`,
+		babyID, event.EventType, event.StartTime, event.EndTime, event.Notes,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("error creating event: %w", err)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("error getting id of new event: %w", err)
+	}
+
+	return uint64(id), nil
+}

@@ -24,9 +24,10 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/babies", handler.BabiesHandler(db)).Methods(http.MethodGet)
-	r.HandleFunc("/babies/{babyID:[0-9]+}", handler.BabyHandler(db)).Methods(http.MethodGet)
-	r.HandleFunc("/babies/{babyID:[0-9]+}/events", handler.EventsHandler(db)).Methods(http.MethodGet)
+	r.HandleFunc("/babies", handler.ListBabiesHandler(db)).Methods(http.MethodGet)
+	r.HandleFunc("/babies/{babyID:[0-9]+}", handler.GetBabyHandler(db)).Methods(http.MethodGet)
+	r.HandleFunc("/babies/{babyID:[0-9]+}/events", handler.ListEventsHandler(db)).Methods(http.MethodGet)
+	r.HandleFunc("/babies/{babyID:[0-9]+}/events", handler.CreateEventHandler(db)).Methods(http.MethodPost)
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.CommonHeaders(s.IsDev()))

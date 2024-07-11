@@ -1,5 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useBabies } from "@/hooks/api/useBabies";
+import { useBabies } from "@/hooks/api";
 import { Link } from "expo-router";
 import { View } from "react-native";
 
