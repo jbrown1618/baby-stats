@@ -19,12 +19,24 @@ export async function createEvent(
   return makeRequest<Event, NewEvent>(`/babies/${babyID}/events`, event);
 }
 
-async function makeRequest<T, B = void>(url: string, body?: B): Promise<T> {
+async function makeRequest<T, B = void>(url: string, payload?: B): Promise<T> {
+  const method = payload ? "POST" : "GET";
+  const body = payload ? JSON.stringify(payload) : undefined;
+
+  console.group(`${method} ${url}`);
+  if (body) {
+    console.debug("payload: ", body);
+  }
+
   const res = await fetch(process.env.EXPO_PUBLIC_SERVER_URL + url, {
-    method: body ? "POST" : "GET",
-    body: body ? JSON.stringify(body) : undefined,
+    method,
+    body,
   });
+  console.debug("status: ", res.status, res.statusText);
 
   const json = await res.json();
+  console.debug("response: ", json);
+
+  console.groupEnd();
   return json as T;
 }
